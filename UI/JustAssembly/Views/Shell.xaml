@@ -84,6 +84,19 @@
                                        VerticalAlignment="Center"/>
                         </MenuItem.Header>
                     </MenuItem>
+                    
+                    <MenuItem Command="{Binding ExportCommand}">
+                        <MenuItem.Icon>
+                            <Image Width="16"
+                                   Height="16"
+                                   Source="pack://application:,,,/JustAssembly;component/Images/Common/open.png" />
+                        </MenuItem.Icon>
+                        <MenuItem.Header>
+                            <TextBlock Margin="-5 0 0 0"
+                                       Text="Export sources to Excel"
+                                       VerticalAlignment="Center"/>
+                        </MenuItem.Header>
+                    </MenuItem>
                 </Menu>
 
                 <banners:BannerImage Grid.Column="1"

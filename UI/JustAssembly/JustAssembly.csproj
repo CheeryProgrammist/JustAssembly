@@ -102,6 +102,9 @@
     <Compile Include="Banners\BannerGenerator.cs" />
     <Compile Include="Banners\BannerImage.cs" />
     <Compile Include="Banners\BannerService.cs" />
+    <Compile Include="Dialogs\ExportDialog.xaml.cs">
+      <DependentUpon>ExportDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\DifferenceDecorationBackgroundConverter.cs" />
@@ -185,6 +188,7 @@
     <Compile Include="ViewModels\FolderComparisonViewModel.cs" />
     <Compile Include="ViewModels\NewSessionTabItemTemplateSelector.cs" />
     <Compile Include="ViewModels\ComparisonSessionViewModelBase.cs" />
+    <Compile Include="ViewModels\ExportViewModel.cs" />
     <Compile Include="ViewModels\NewSessionViewModel.cs" />
     <Compile Include="Interfaces\IShellViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
@@ -193,6 +197,10 @@
       <DependentUpon>SideSummary.xaml</DependentUpon>
     </Compile>
     <Page Include="Dialogs\ErrorMessageWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\ExportDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

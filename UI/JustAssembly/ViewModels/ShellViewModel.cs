@@ -22,6 +22,8 @@ namespace JustAssembly.ViewModels
         {
             this.OpenNewSessionCommand = new DelegateCommand(OpenNewSessionCommandExecuted);
 
+            this.ExportCommand = new DelegateCommand(ExportAllToExcelCommandExecuted);
+
             this.TabCloseCommand = new DelegateCommand<ITabSourceItem>(OnTabCloseCommand);
 
             Commands.TabItemCloseCommand.RegisterCommand(TabCloseCommand);
@@ -36,9 +38,11 @@ namespace JustAssembly.ViewModels
             this.MouseDoubleSelectedCommand = new DelegateCommand<ItemNodeBase>(OnMouseDoubleSelectedCommandExecuted);
         }
 
-        public ICommand OpenNewSessionCommand { get; private set; }
+		public ICommand OpenNewSessionCommand { get; private set; }
 
-        public ICommand MouseDoubleSelectedCommand { get; private set; }
+		public ICommand ExportCommand { get; private set; }
+
+		public ICommand MouseDoubleSelectedCommand { get; private set; }
 
         public ICommand TabCloseCommand { get; private set; }
 
@@ -71,23 +75,37 @@ namespace JustAssembly.ViewModels
 
                 tabItem.Dispose();
             }
-        }
+		}
 
-        public void OpenNewSessionCommandExecuted()
-        {
-            NewSessionViewModel newSessionViewModel = new NewSessionViewModel();
+		public void OpenNewSessionCommandExecuted()
+		{
+			NewSessionViewModel newSessionViewModel = new NewSessionViewModel();
 
-            var newSessionDialog = new NewSessionDialog { DataContext = newSessionViewModel };
+			var newSessionDialog = new NewSessionDialog { DataContext = newSessionViewModel };
 
-            if (newSessionDialog.ShowDialog() == true)
-            {
-                Configuration.Analytics.TrackFeature("DiffSessionType." + newSessionViewModel.SelectedSession.SelectedItemType.ToString());
+			if (newSessionDialog.ShowDialog() == true)
+			{
+				Configuration.Analytics.TrackFeature("DiffSessionType." + newSessionViewModel.SelectedSession.SelectedItemType.ToString());
 
-                this.OnLoadCommandExecuted(newSessionViewModel.SelectedSession);
-            }
-        }
+				this.OnLoadCommandExecuted(newSessionViewModel.SelectedSession);
+			}
+		}
 
-        private void OnLoadCommandExecuted(IComparisonSessionModel newSession)
+		public void ExportAllToExcelCommandExecuted()
+		{
+			ExportViewModel exportSession = new ExportViewModel();
+
+			var exportDialog = new ExportDialog { DataContext = exportSession };
+
+			if (exportDialog.ShowDialog() == true)
+			{
+				Configuration.Analytics.TrackFeature("DiffSessionType." + exportSession.SelectedSession.SelectedItemType.ToString());
+
+				this.OnLoadCommandExecuted(exportSession.SelectedSession);
+			}
+		}
+
+		private void OnLoadCommandExecuted(IComparisonSessionModel newSession)
         {
             ITabSourceItem tabItem = newSession.GetTabSourceItem();
 
