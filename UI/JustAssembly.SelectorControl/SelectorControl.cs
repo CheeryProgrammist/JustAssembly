@@ -1,4 +1,5 @@
-﻿using Microsoft.Practices.Prism.Commands;
+﻿using System;
+using Microsoft.Practices.Prism.Commands;
 using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Input;
@@ -49,17 +50,22 @@ namespace JustAssembly.SelectorControl
         
         private void OnBrowseFilePathExecuted()
         {
-            if (this.SelectedItemType == SelectedItemType.File)
-            {
-                GetEnteredFilePath();
-            }
-            else
-            {
-                GetEnteredFolderPath();
+	        switch (this.SelectedItemType)
+			{
+				case SelectedItemType.File:
+					GetEnteredFilePath();
+					break;
+				case SelectedItemType.Folder:
+					GetEnteredFolderPath();
+					break;
+				case SelectedItemType.SaveToFile:
+					GetSaveFilePath();
+					break;
+				default: throw new InvalidOperationException();
             }
         }
-        
-        private void GetEnteredFolderPath()
+
+	    private void GetEnteredFolderPath()
         {
             System.Windows.Forms.FolderBrowserDialog showDialog = new System.Windows.Forms.FolderBrowserDialog()
             {
@@ -88,9 +94,23 @@ namespace JustAssembly.SelectorControl
             {
                 FilePath = showDialog.FileName;
             }
-        }
+		}
 
-        public ICommand BrowseCommand
+	    private void GetSaveFilePath()
+	    {
+		    var dialog = new SaveFileDialog()
+		    {
+			    Filter = "Excel Files | *.xlsx"
+		    };
+		    bool? showDialogResult = dialog.ShowDialog();
+			
+		    if (showDialogResult == true)
+		    {
+			    FilePath = dialog.FileName;
+		    }
+		}
+
+		public ICommand BrowseCommand
         {
             get { return (ICommand)GetValue(BrowseCommandProperty); }
             set { SetValue(BrowseCommandProperty, value); }

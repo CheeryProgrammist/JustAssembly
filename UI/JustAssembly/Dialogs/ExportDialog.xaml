@@ -3,73 +3,29 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:JustAssembly.ViewModels"
         xmlns:selectorControl="clr-namespace:JustAssembly.SelectorControl;assembly=JustAssembly.SelectorControl"
-        xmlns:dragablz="clr-namespace:Dragablz;assembly=Dragablz"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="JustAssembly.ExportDialog"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="JustAssembly.ExportDialog"
         Title="Export"
         SizeToContent="WidthAndHeight">
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Dragablz;component/Themes/Generic.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+	<Grid Margin="10">
+		<Grid.RowDefinitions>
+			<RowDefinition></RowDefinition>
+			<RowDefinition></RowDefinition>
+		</Grid.RowDefinitions>
+		<selectorControl:SelectorControl Grid.Column="1"
+                                        SelectedItemType="SaveToFile"
+                                        FilePath="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Header="File to save" />
 
-            <DataTemplate x:Key="exportBrowseTemplate">
-                <Grid Margin="10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <selectorControl:SelectorControl Grid.Column="1"
-                                                     SelectedItemType="File"
-                                                     FilePath="{Binding NewType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Header="File to save" />
-
-                    <Button Grid.Row="1"
-                            Grid.ColumnSpan="2"
+		<Button Grid.Row="1"
                             Width="80"
                             Margin="0 15 15 0"
-                            IsEnabled="{Binding IsLoadEnabled}"
                             HorizontalAlignment="Right"
-                            Click="OnLoadClick"
-                            Content="Load"
+                            Command="{Binding ExportCommand}"
+							IsEnabled="{Binding IsSaveEnabled}"
+							Click ="OnSaveClick"
+                            Content="Save"
                             Padding="5 3" />
-                </Grid>
-            </DataTemplate>
-        </ResourceDictionary>
-    </Window.Resources>
-    <Grid Margin="10">
-        <selectorControl:SelectorControl Grid.Column="1"
-                                                     SelectedItemType="File"
-                                                     FilePath="{Binding NewType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Header="File to save" />
-
-        <Button Grid.Row="1"
-                            Grid.ColumnSpan="2"
-                            Width="80"
-                            Margin="0 15 15 0"
-                            IsEnabled="{Binding IsLoadEnabled}"
-                            HorizontalAlignment="Right"
-                            Click="OnLoadClick"
-                            Content="Load"
-                            Padding="5 3" />
-    </Grid>
-    <!--<Grid Margin="2">
-        <dragablz:TabablzControl SelectedItem="{Binding SelectedSession, Mode=TwoWay}"
-                                 ItemsSource="{Binding Tabs}"
-                                 HeaderMemberPath="Header"
-                                 ItemContainerStyle="{StaticResource TrapezoidDragableTabItemStyle}"
-                                 AdjacentHeaderItemOffset="-10"
-                                 FixedHeaderCount="2">
-            <dragablz:TabablzControl.ContentTemplateSelector>
-                <local:NewSessionTabItemTemplateSelector AssembliesBrowseTemplate="{StaticResource exportBrowseTemplate}"/>
-            </dragablz:TabablzControl.ContentTemplateSelector>
-        </dragablz:TabablzControl>
-    </Grid>-->
+	</Grid>
 </Window>

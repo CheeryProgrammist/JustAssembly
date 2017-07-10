@@ -3,6 +3,7 @@
     public enum SelectedItemType
     {
         File,
-        Folder
+        Folder,
+		SaveToFile
     }
 }

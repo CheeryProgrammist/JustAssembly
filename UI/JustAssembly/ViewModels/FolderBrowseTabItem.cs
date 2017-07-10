@@ -1,4 +1,5 @@
 using System;
+using JustAssembly.Exporters;
 using JustAssembly.Interfaces;
 using JustAssembly.Nodes.APIDiff;
 using JustAssembly.Nodes;
@@ -32,7 +33,12 @@ namespace JustAssembly.ViewModels
             this.nodes[currentNode].ReloadChildren();
         }
 
-        private void OnFolderNodeChildrenLoaded(object sender, EventArgs e)
+	    public override void ExportContent(out IExportData data)
+	    {
+		    data = new ExportNodes(nodes);
+	    }
+
+	    private void OnFolderNodeChildrenLoaded(object sender, EventArgs e)
         {
         }
 

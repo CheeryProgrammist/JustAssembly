@@ -3,10 +3,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using JustAssembly.Extensions;
 using JustAssembly.Infrastructure;
 using JustAssembly.Nodes;
 using ICSharpCode.TreeView;
+using JustAssembly.Exporters;
 
 namespace JustAssembly.Interfaces
 {

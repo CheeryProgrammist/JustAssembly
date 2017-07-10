@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using JustAssembly.Exporters;
 using JustDecompile.External.JustAssembly;
 using Microsoft.Practices.Prism.ViewModel;
 
@@ -160,7 +161,12 @@ namespace JustAssembly.Interfaces
 			this.LoadContent();
 		}
 
-        public virtual void Dispose()
+	    public virtual void ExportContent(out IExportData data)
+	    {
+		    data = null;
+	    }
+
+	    public virtual void Dispose()
         {
         }
     }

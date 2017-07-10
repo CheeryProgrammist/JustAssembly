@@ -40,7 +40,7 @@ namespace JustAssembly.Nodes
         {
             get
             {
-                return string.Format("{0}\\{1}", ParentNode.Name, this.Name);
+                return string.Format("{0}\\{1}", ParentNode?.Name ?? string.Empty, this.Name);
             }
         }
 

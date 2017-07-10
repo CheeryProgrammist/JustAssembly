@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using JustAssembly.Exporters;
 
 namespace JustAssembly.Interfaces
 {
@@ -16,5 +17,7 @@ namespace JustAssembly.Interfaces
         void LoadContent();
 
 		void ReloadContent();
+
+	    void ExportContent(out IExportData data);
     }
 }

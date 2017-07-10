@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using JustAssembly.Exporters;
 using JustAssembly.Infrastructure;
 using JustAssembly.Interfaces;
 using JustAssembly.Nodes;
@@ -13,30 +14,30 @@ using Microsoft.Practices.Prism.ViewModel;
 
 namespace JustAssembly.ViewModels
 {
-    class ShellViewModel : NotificationObject, IShellViewModel
-    {
-        private int selectedTabIndex;
-        private DelegateCommand<ITabSourceItem> closeAllButThisCommand;
+	class ShellViewModel : NotificationObject, IShellViewModel
+	{
+		private int selectedTabIndex;
+		private DelegateCommand<ITabSourceItem> closeAllButThisCommand;
 
-        public ShellViewModel()
-        {
-            this.OpenNewSessionCommand = new DelegateCommand(OpenNewSessionCommandExecuted);
+		public ShellViewModel()
+		{
+			this.OpenNewSessionCommand = new DelegateCommand(OpenNewSessionCommandExecuted);
 
-            this.ExportCommand = new DelegateCommand(ExportAllToExcelCommandExecuted);
+			this.ExportCommand = new DelegateCommand(ExportAllToExcelCommandExecuted);
 
-            this.TabCloseCommand = new DelegateCommand<ITabSourceItem>(OnTabCloseCommand);
+			this.TabCloseCommand = new DelegateCommand<ITabSourceItem>(OnTabCloseCommand);
 
-            Commands.TabItemCloseCommand.RegisterCommand(TabCloseCommand);
+			Commands.TabItemCloseCommand.RegisterCommand(TabCloseCommand);
 
-            this.closeAllButThisCommand = new DelegateCommand<ITabSourceItem>(OnCloseAllButThisExecuted, OnCloseAllButThisCanExecute);
-            Commands.CloseAllButThisCommand.RegisterCommand(closeAllButThisCommand);
+			this.closeAllButThisCommand = new DelegateCommand<ITabSourceItem>(OnCloseAllButThisExecuted, OnCloseAllButThisCanExecute);
+			Commands.CloseAllButThisCommand.RegisterCommand(closeAllButThisCommand);
 
-            Commands.CloseAllCommand.RegisterCommand(new DelegateCommand(OnCloseAllExecuted));
+			Commands.CloseAllCommand.RegisterCommand(new DelegateCommand(OnCloseAllExecuted));
 
-            this.Tabs = new ObservableCollection<ITabSourceItem>();
+			this.Tabs = new ObservableCollection<ITabSourceItem>();
 
-            this.MouseDoubleSelectedCommand = new DelegateCommand<ItemNodeBase>(OnMouseDoubleSelectedCommandExecuted);
-        }
+			this.MouseDoubleSelectedCommand = new DelegateCommand<ItemNodeBase>(OnMouseDoubleSelectedCommandExecuted);
+		}
 
 		public ICommand OpenNewSessionCommand { get; private set; }
 
@@ -44,37 +45,37 @@ namespace JustAssembly.ViewModels
 
 		public ICommand MouseDoubleSelectedCommand { get; private set; }
 
-        public ICommand TabCloseCommand { get; private set; }
+		public ICommand TabCloseCommand { get; private set; }
 
-        public ObservableCollection<ITabSourceItem> Tabs { get; private set; }
+		public ObservableCollection<ITabSourceItem> Tabs { get; private set; }
 
-        public int SelectedTabIndex
-        {
-            get
-            {
-                return this.selectedTabIndex;
-            }
-            set
-            {
-                if (this.selectedTabIndex != value)
-                {
-                    this.selectedTabIndex = value;
+		public int SelectedTabIndex
+		{
+			get
+			{
+				return this.selectedTabIndex;
+			}
+			set
+			{
+				if (this.selectedTabIndex != value)
+				{
+					this.selectedTabIndex = value;
 
-                    this.RaisePropertyChanged("SelectedTabIndex");
-                }
-            }
-        }
+					this.RaisePropertyChanged("SelectedTabIndex");
+				}
+			}
+		}
 
-        public void CancelCurrentOperation()
-        {
-            if (selectedTabIndex > -1 && selectedTabIndex < Tabs.Count)
-            {
-                ITabSourceItem tabItem = this.Tabs[selectedTabIndex];
+		public void CancelCurrentOperation()
+		{
+			if (selectedTabIndex > -1 && selectedTabIndex < Tabs.Count)
+			{
+				ITabSourceItem tabItem = this.Tabs[selectedTabIndex];
 
-                tabItem.CancelProgress();
+				tabItem.CancelProgress();
 
-                tabItem.Dispose();
-            }
+				tabItem.Dispose();
+			}
 		}
 
 		public void OpenNewSessionCommandExecuted()
@@ -93,222 +94,221 @@ namespace JustAssembly.ViewModels
 
 		public void ExportAllToExcelCommandExecuted()
 		{
-			ExportViewModel exportSession = new ExportViewModel();
+			ExportViewModel exportViewModel = new ExportViewModel();
 
-			var exportDialog = new ExportDialog { DataContext = exportSession };
+			var exportDialog = new ExportDialog { DataContext = exportViewModel };
 
 			if (exportDialog.ShowDialog() == true)
 			{
-				Configuration.Analytics.TrackFeature("DiffSessionType." + exportSession.SelectedSession.SelectedItemType.ToString());
-
-				this.OnLoadCommandExecuted(exportSession.SelectedSession);
+				var exporter = new ExcelExporter(this.Tabs[selectedTabIndex]);
+				exporter.SaveTo(exportViewModel.FilePath);
 			}
 		}
 
 		private void OnLoadCommandExecuted(IComparisonSessionModel newSession)
-        {
-            ITabSourceItem tabItem = newSession.GetTabSourceItem();
+		{
+			ITabSourceItem tabItem = newSession.GetTabSourceItem();
 
-            tabItem.LoadContent();
+			tabItem.LoadContent();
 
-            this.AddNewTabItem(tabItem);
-        }
+			this.AddNewTabItem(tabItem);
+		}
 
-        private void OnTabCloseCommand(ITabSourceItem tabSourceItem)
-        {
-            tabSourceItem.Dispose();
+		private void OnTabCloseCommand(ITabSourceItem tabSourceItem)
+		{
+			tabSourceItem.Dispose();
 
-            this.Tabs.Remove(tabSourceItem);
+			this.Tabs.Remove(tabSourceItem);
 
-            this.closeAllButThisCommand.RaiseCanExecuteChanged();
-        }
+			this.closeAllButThisCommand.RaiseCanExecuteChanged();
+		}
 
-        private void OnMouseDoubleSelectedCommandExecuted(ItemNodeBase itemNode)
-        {
-            if (itemNode == null)
-            {
-                return;
-            }
-            switch (itemNode.NodeType)
-            {
-                case NodeType.Module:
-                case NodeType.Directory:
-                case NodeType.Namespace:
-                case NodeType.DefaultResource:
-                    itemNode.IsExpanded = !itemNode.IsExpanded;
-                    break;
+		private void OnMouseDoubleSelectedCommandExecuted(ItemNodeBase itemNode)
+		{
+			if (itemNode == null)
+			{
+				return;
+			}
+			switch (itemNode.NodeType)
+			{
+				case NodeType.Module:
+				case NodeType.Directory:
+				case NodeType.Namespace:
+				case NodeType.DefaultResource:
+					itemNode.IsExpanded = !itemNode.IsExpanded;
+					break;
 
-                case NodeType.AssemblyNode:
-                    var assemblyNode = (AssemblyNode)itemNode;
-                    OnAssemblySelected(assemblyNode, () => AddJustAssemblyTab(assemblyNode));
-                    break;
+				case NodeType.AssemblyNode:
+					var assemblyNode = (AssemblyNode)itemNode;
+					OnAssemblySelected(assemblyNode, () => AddJustAssemblyTab(assemblyNode));
+					break;
 
-                case NodeType.DecompiledResource:
-                    var xamlResourceNode = (XamlResourceNode)itemNode;
-                    OnXamlSelected(xamlResourceNode);
-                    break;
+				case NodeType.DecompiledResource:
+					var xamlResourceNode = (XamlResourceNode)itemNode;
+					OnXamlSelected(xamlResourceNode);
+					break;
 
-                case NodeType.TypeDefinition:
-                case NodeType.MemberDefinition:
-                    this.OnTypesSelected((DecompiledMemberNodeBase)itemNode);
-                    break;
-            }
-        }
+				case NodeType.TypeDefinition:
+				case NodeType.MemberDefinition:
+					this.OnTypesSelected((DecompiledMemberNodeBase)itemNode);
+					break;
+			}
+		}
 
-        private void OnAssemblySelected(AssemblyNode assemblyNode, Action completeAction = null)
-        {
-            if (assemblyNode.Children.Count == 0)
-            {
-                Task loadingTask = assemblyNode.LoadItemsAsync(() => assemblyNode.IsExpanded = false);
+		private void OnAssemblySelected(AssemblyNode assemblyNode, Action completeAction = null)
+		{
+			if (assemblyNode.Children.Count == 0)
+			{
+				Task loadingTask = assemblyNode.LoadItemsAsync(() => assemblyNode.IsExpanded = false);
 
-                loadingTask.ContinueWith(t =>
-                {
-                    if (!t.IsCanceled && !t.IsFaulted)
-                    {
-                        if (completeAction != null)
-                        {
-                            completeAction();
-                        }
-                    }
-                    else if (t.Exception.InnerExceptions.Count > 0)
-                    {
+				loadingTask.ContinueWith(t =>
+				{
+					if (!t.IsCanceled && !t.IsFaulted)
+					{
+						if (completeAction != null)
+						{
+							completeAction();
+						}
+					}
+					else if (t.Exception.InnerExceptions.Count > 0)
+					{
 						// already shown an error window.
-                        //this.ShowExceptionMessage(t.Exception.InnerExceptions);
+						//this.ShowExceptionMessage(t.Exception.InnerExceptions);
 
-                    }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-            }
-            else
-            {
-                if (completeAction != null)
-                {
-                    completeAction();
-                }
-            }
-        }
+					}
+				}, TaskScheduler.FromCurrentSynchronizationContext());
+			}
+			else
+			{
+				if (completeAction != null)
+				{
+					completeAction();
+				}
+			}
+		}
 
-        private void ShowExceptionMessage(ReadOnlyCollection<Exception> readOnlyCollection)
-        {
-            var exceptionStringBuilder = new StringBuilder(readOnlyCollection.Count * 3);
+		private void ShowExceptionMessage(ReadOnlyCollection<Exception> readOnlyCollection)
+		{
+			var exceptionStringBuilder = new StringBuilder(readOnlyCollection.Count * 3);
 
-            foreach (Exception exception in readOnlyCollection)
-            {
-                exceptionStringBuilder.Append(exception.Message)
-                                      .AppendLine()
-                                      .AppendLine(exception.StackTrace);
-            }
-            ToolWindow.ShowDialog(new ErrorMessageWindow(exceptionStringBuilder.ToString(), "Exception"), width: 800, height: 500);
-        }
+			foreach (Exception exception in readOnlyCollection)
+			{
+				exceptionStringBuilder.Append(exception.Message)
+									  .AppendLine()
+									  .AppendLine(exception.StackTrace);
+			}
+			ToolWindow.ShowDialog(new ErrorMessageWindow(exceptionStringBuilder.ToString(), "Exception"), width: 800, height: 500);
+		}
 
-        private void AddJustAssemblyTab(AssemblyNode node)
-        {
-            var JustAssemblyTabItem = new AssemblyAttributeTabItem(node);
+		private void AddJustAssemblyTab(AssemblyNode node)
+		{
+			var JustAssemblyTabItem = new AssemblyAttributeTabItem(node);
 
-            JustAssemblyTabItem.LoadContent();
+			JustAssemblyTabItem.LoadContent();
 
-            this.AddNewTabItem(JustAssemblyTabItem);
-        }
+			this.AddNewTabItem(JustAssemblyTabItem);
+		}
 
-        private void OnTypesSelected(DecompiledMemberNodeBase typeNode)
-        {
-            var JustAssemblyTabItem = new JustAssemblyTabItem(typeNode);
+		private void OnTypesSelected(DecompiledMemberNodeBase typeNode)
+		{
+			var JustAssemblyTabItem = new JustAssemblyTabItem(typeNode);
 
-            JustAssemblyTabItem.LoadContent();
+			JustAssemblyTabItem.LoadContent();
 
-            this.AddNewTabItem(JustAssemblyTabItem);
-        }
+			this.AddNewTabItem(JustAssemblyTabItem);
+		}
 
-        private void OnXamlSelected(XamlResourceNode xamlResourceNode)
-        {
-            var JustAssemblyTabItem = new XamlDiffTabItem(xamlResourceNode);
+		private void OnXamlSelected(XamlResourceNode xamlResourceNode)
+		{
+			var JustAssemblyTabItem = new XamlDiffTabItem(xamlResourceNode);
 
-            JustAssemblyTabItem.LoadContent();
+			JustAssemblyTabItem.LoadContent();
 
-            this.AddNewTabItem(JustAssemblyTabItem);
-        }
+			this.AddNewTabItem(JustAssemblyTabItem);
+		}
 
-        private bool OnCloseAllButThisCanExecute(ITabSourceItem arg)
-        {
-            return this.Tabs.Count > 1;
-        }
+		private bool OnCloseAllButThisCanExecute(ITabSourceItem arg)
+		{
+			return this.Tabs.Count > 1;
+		}
 
-        private void OnCloseAllButThisExecuted(ITabSourceItem tabItem)
-        {
-            var removedIndex = new List<int>(Tabs.Count);
+		private void OnCloseAllButThisExecuted(ITabSourceItem tabItem)
+		{
+			var removedIndex = new List<int>(Tabs.Count);
 
-            for (int i = 0; i < Tabs.Count; i++)
-            {
-                if (Tabs[i] != tabItem)
-                {
-                    removedIndex.Add(i);
-                }
-            }
-            this.RemoveTabsByIndexes(removedIndex);
-        }
+			for (int i = 0; i < Tabs.Count; i++)
+			{
+				if (Tabs[i] != tabItem)
+				{
+					removedIndex.Add(i);
+				}
+			}
+			this.RemoveTabsByIndexes(removedIndex);
+		}
 
-        private void OnCloseAllExecuted()
-        {
-            var tabsList = Tabs.ToList();
+		private void OnCloseAllExecuted()
+		{
+			var tabsList = Tabs.ToList();
 
-            Tabs.Clear();
+			Tabs.Clear();
 
-            foreach (var tab in tabsList)
-            {
-                tab.Dispose();
-            }
+			foreach (var tab in tabsList)
+			{
+				tab.Dispose();
+			}
 
-            this.RaisePropertyChanged("Tabs");
+			this.RaisePropertyChanged("Tabs");
 
-            this.closeAllButThisCommand.RaiseCanExecuteChanged();
-        }
+			this.closeAllButThisCommand.RaiseCanExecuteChanged();
+		}
 
-        private void RemoveTabsByIndexes(IEnumerable<int> removedTabsIndexes)
-        {
-            var tabs = new Queue<ITabSourceItem>(Tabs.Count);
+		private void RemoveTabsByIndexes(IEnumerable<int> removedTabsIndexes)
+		{
+			var tabs = new Queue<ITabSourceItem>(Tabs.Count);
 
-            List<ITabSourceItem> currentTabs = Tabs.ToList();
+			List<ITabSourceItem> currentTabs = Tabs.ToList();
 
-            foreach (int index in removedTabsIndexes)
-            {
-                tabs.Enqueue(Tabs[index]);
-            }
-            while (tabs.Count > 0)
-            {
-                ITabSourceItem removedTabItems = tabs.Dequeue();
+			foreach (int index in removedTabsIndexes)
+			{
+				tabs.Enqueue(Tabs[index]);
+			}
+			while (tabs.Count > 0)
+			{
+				ITabSourceItem removedTabItems = tabs.Dequeue();
 
-                removedTabItems.Dispose();
+				removedTabItems.Dispose();
 
-                currentTabs.Remove(removedTabItems);
-            }
-            this.Tabs = new ObservableCollection<ITabSourceItem>(currentTabs);
+				currentTabs.Remove(removedTabItems);
+			}
+			this.Tabs = new ObservableCollection<ITabSourceItem>(currentTabs);
 
-            this.SelectedTabIndex = PredictNextValidTabIndex(removedTabsIndexes, selectedTabIndex);
+			this.SelectedTabIndex = PredictNextValidTabIndex(removedTabsIndexes, selectedTabIndex);
 
-            this.RaisePropertyChanged("Tabs");
+			this.RaisePropertyChanged("Tabs");
 
-            this.closeAllButThisCommand.RaiseCanExecuteChanged();
-        }
+			this.closeAllButThisCommand.RaiseCanExecuteChanged();
+		}
 
-        private int PredictNextValidTabIndex(IEnumerable<int> removedTabsIndexes, int currentTabIndex)
-        {
-            if (removedTabsIndexes.Contains(currentTabIndex))
-            {
-                return PredictNextValidTabIndex(removedTabsIndexes, --currentTabIndex);
-            }
-            else if (Tabs.Count <= currentTabIndex)
-            {
-                currentTabIndex = Tabs.Count - 1;
-            }
-            return Math.Max(0, currentTabIndex);
-        }
+		private int PredictNextValidTabIndex(IEnumerable<int> removedTabsIndexes, int currentTabIndex)
+		{
+			if (removedTabsIndexes.Contains(currentTabIndex))
+			{
+				return PredictNextValidTabIndex(removedTabsIndexes, --currentTabIndex);
+			}
+			else if (Tabs.Count <= currentTabIndex)
+			{
+				currentTabIndex = Tabs.Count - 1;
+			}
+			return Math.Max(0, currentTabIndex);
+		}
 
-        private void AddNewTabItem(ITabSourceItem item)
-        {
-            this.Tabs.Add(item);
+		private void AddNewTabItem(ITabSourceItem item)
+		{
+			this.Tabs.Add(item);
 
-            this.SelectedTabIndex = this.Tabs.Count - 1;
+			this.SelectedTabIndex = this.Tabs.Count - 1;
 
-            this.closeAllButThisCommand.RaiseCanExecuteChanged();
-        }
-    }
+			this.closeAllButThisCommand.RaiseCanExecuteChanged();
+		}
+	}
 }

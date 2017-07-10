@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Windows;
 using JustAssembly.Core;
+using JustAssembly.Exporters;
 using JustAssembly.Interfaces;
 using JustAssembly.MergeUtilities;
 using JustAssembly.Nodes;
@@ -101,5 +103,10 @@ namespace JustAssembly.ViewModels
             GC.WaitForPendingFinalizers();
             GC.Collect();
         }
+
+	    public override void ExportContent(out IExportData data)
+	    {
+		    throw new NotImplementedException();
+	    }
     }
 }

@@ -39,7 +39,7 @@ namespace JustAssembly
             return this.ShowDialog() == true;
         }
 
-        private void OnLoadClick(object sender, RoutedEventArgs e)
+        private void OnSaveClick(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
 

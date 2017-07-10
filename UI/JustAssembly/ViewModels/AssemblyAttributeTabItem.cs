@@ -1,4 +1,5 @@
 using System;
+using JustAssembly.Exporters;
 using JustAssembly.Infrastructure.CodeViewer;
 using JustDecompile.External.JustAssembly;
 using JustAssembly.Nodes;
@@ -33,8 +34,8 @@ namespace JustAssembly.ViewModels
             this.ApplyDiff();
             this.IsBusy = false;
         }
-  
-        private string GetTabTitle(AssemblyNode instance)
+
+	    private string GetTabTitle(AssemblyNode instance)
         {
             return string.Format("{0} Attributes", instance.Name);
         }
@@ -43,5 +44,10 @@ namespace JustAssembly.ViewModels
         {
             return string.Format("{0} Attributes", instance.Name);
         }
+
+	    public override void ExportContent(out IExportData data)
+	    {
+		    throw new NotImplementedException();
+	    }
     }
 }
